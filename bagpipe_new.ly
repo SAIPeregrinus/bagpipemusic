@@ -1,10 +1,10 @@
 ﻿%{
-  Bagpipe music settings for Lilypond.
-  This file builds on work by Andrew McNabb (http://www.mcnabbs.org/andrew/)
-
-  Substantial changes and additions made by
-  Sven Axelsson, the Murray Pipes & Drums of Gothenburg
-  (http://www.murrays.nu)
+%  Bagpipe music settings for Lilypond.
+%  This file builds on work by Andrew McNabb (http://www.mcnabbs.org/andrew/)
+%
+%  Substantial changes and additions made by
+%  Sven Axelsson, the Murray Pipes & Drums of Gothenburg
+%  (http://www.murrays.nu)
 %}
 
 \version "2.12.0"
@@ -13,21 +13,21 @@
 % Flat notes used mainly in some modern music.
 
 pitchnamesBagpipe = #`(
-  (G     . ,(ly:make-pitch 0 4 NATURAL))
-  (a     . ,(ly:make-pitch 0 5 NATURAL))
-  (b     . ,(ly:make-pitch 0 6 NATURAL))
+  (G . ,(ly:make-pitch 0 4 NATURAL))
+  (a . ,(ly:make-pitch 0 5 NATURAL))
+  (b . ,(ly:make-pitch 0 6 NATURAL))
   (bflat . ,(ly:make-pitch 0 6 FLAT))
-  (c     . ,(ly:make-pitch 1 0 SHARP))
+  (c . ,(ly:make-pitch 1 0 SHARP))
   (cflat . ,(ly:make-pitch 1 0 FLAT))
-  (d     . ,(ly:make-pitch 1 1 NATURAL))
-  (e     . ,(ly:make-pitch 1 2 NATURAL))
-  (f     . ,(ly:make-pitch 1 3 SHARP))
+  (d . ,(ly:make-pitch 1 1 NATURAL))
+  (e . ,(ly:make-pitch 1 2 NATURAL))
+  (f . ,(ly:make-pitch 1 3 SHARP))
   (fflat . ,(ly:make-pitch 1 3 FLAT))
-  (g     . ,(ly:make-pitch 1 4 NATURAL))
+  (g . ,(ly:make-pitch 1 4 NATURAL))
   (gflat . ,(ly:make-pitch 1 4 FLAT))
-  (A     . ,(ly:make-pitch 1 5 NATURAL))
-  (B     . ,(ly:make-pitch 1 6 NATURAL))
-  (C     . ,(ly:make-pitch 2 0 SHARP))
+  (A . ,(ly:make-pitch 1 5 NATURAL))
+  (B . ,(ly:make-pitch 1 6 NATURAL))
+  (C . ,(ly:make-pitch 2 0 SHARP))
 )
 pitchnames = \pitchnamesBagpipe
 #(ly:parser-set-note-names parser pitchnames)
@@ -58,13 +58,15 @@ showTrueKeySignature = {
 }
 
 % gracenotesOff = #(set! showGracenotes ##f)
-% gracenotesOn  = #(set! showGracenotes ##t)
+% gracenotesOn = #(set! showGracenotes ##t)
 % \gracenotesOn
 
 % Various tweaks to get good defaults for bagpipe music.
 \paper {
     top-margin = 4\mm
     bottom-margin = 4\mm
+	page-limit-inter-system-space = ##t
+    page-limit-inter-system-space-factor = 1.2
 }
 
 \layout {
@@ -73,15 +75,19 @@ showTrueKeySignature = {
   \context {
     \Score
 
-    between-system-space = #0.1
-    between-system-padding = #0.0
+%    between-system-space = #0.1
+%    between-system-padding = #0.0
 
     \remove "Bar_number_engraver"
 
     \override Stem #'direction = #down
     \override Slur #'direction = #up
     \override Tie #'direction = #up
-
+	\override Beam #'positions = #'(-4 . -4)
+	\override Beam #'beam-thickness = #0.3
+	\override Beam #'damping = #'100000
+%	\override SpacingSpanner #'strict-grace-spacing = ##t
+	
     \override KeySignature #'print-function = ##f
     \override VoltaBracketSpanner #'Y-extent = #'(-1.5 . 0)
     \override VoltaBracket #'height = #2.2
@@ -90,8 +96,8 @@ showTrueKeySignature = {
   \context {
     \StaffGroup
 
-    between-system-space = #0.1
-    between-system-padding = #0.0
+%    between-system-space = #0.1
+%    between-system-padding = #0.0
 
     extraNatural = ##f
 
@@ -136,10 +142,22 @@ stemspace = #(define-music-function (parser location extent) (pair?) #{
     \once \override Staff.Stem #'X-extent = #$extent
 #})
 pgrace = #(define-music-function (parser location notes) (ly:music?) #{
-  \override Score.GraceSpacing #'spacing-increment = #0
+   \override Score.GraceSpacing #'spacing-increment = #0
    \override Score.Stem #'beamlet-max-length-proportion = #'(0.5 . 0.5)
-   \small \grace $notes \normalsize
+   \override Score.Stem #'direction = #up
+   \revert Score.Beam #'positions
+   \override Beam #'beam-thickness = #0.5
+   \override Stem  #'length = #5.5
+   \override Stem #'(details beamed-lengths) = #'(1.5)
+%   \override Beam  #'space-function = #(lambda (beam mult) (* 0.6 (Beam::space_function beam mult)))
+   \tiny \grace $notes \normalsize
+%   \revert Beam #'space-function
+   \revert Stem #'(details beamed-lengths)
+   \revert Stem #'length
    \revert Score.Stem #'beamlet-default-length
+   \override Score.Beam #'positions = #'(-4 . -4)
+   \override Beam #'beam-thickness = #0.3
+   \override Stem #'direction = #down
 #})
 
 % Single pgrace notes
@@ -219,37 +237,37 @@ tshakeA = { \pgrace { A32[ g A a] } }
 
 % Slurs
 % A few of these can't really be played and are here only for consistency.
-slura  = { \pgrace { g32[ a G] } }
-slurb  = { \pgrace { g32[ b G] } }
-slurc  = { \pgrace { g32[ c G] } }
-slurd  = { \pgrace { g32[ d G] } }
+slura = { \pgrace { g32[ a G] } }
+slurb = { \pgrace { g32[ b G] } }
+slurc = { \pgrace { g32[ c G] } }
+slurd = { \pgrace { g32[ d G] } }
 wslurd = { \pgrace { g32[ d c] } }
-slure  = { \pgrace { g32[ e a] } }
-slurf  = { \pgrace { g32[ f a] } }
-slurg  = { \pgrace { A32[ f a] } }
-slurA  = { \pgrace { f32[ a] } }
+slure = { \pgrace { g32[ e a] } }
+slurf = { \pgrace { g32[ f a] } }
+slurg = { \pgrace { A32[ f a] } }
+slurA = { \pgrace { f32[ a] } }
 
 % Half slurs
-hslura  = { \pgrace { a32[ G] } }
-hslurb  = { \pgrace { b32[ G] } }
-hslurc  = { \pgrace { c32[ G] } }
-hslurd  = { \pgrace { d32[ G] } }
+hslura = { \pgrace { a32[ G] } }
+hslurb = { \pgrace { b32[ G] } }
+hslurc = { \pgrace { c32[ G] } }
+hslurd = { \pgrace { d32[ G] } }
 whslurd = { \pgrace { d32[ c] } }
-hslure  = { \pgrace { e32[ a] } }
-hslurf  = { \pgrace { f32[ a] } }
-hslurg  = { \pgrace { g32[ a] } }
-hslurA  = { \pgrace { A32[ a] } }
+hslure = { \pgrace { e32[ a] } }
+hslurf = { \pgrace { f32[ a] } }
+hslurg = { \pgrace { g32[ a] } }
+hslurA = { \pgrace { A32[ a] } }
 
 % Thumb slurs
-tslura  = { \pgrace { A32[ a G] } }
-tslurb  = { \pgrace { A32[ b G] } }
-tslurc  = { \pgrace { A32[ c G] } }
-tslurd  = { \pgrace { A32[ d G] } }
+tslura = { \pgrace { A32[ a G] } }
+tslurb = { \pgrace { A32[ b G] } }
+tslurc = { \pgrace { A32[ c G] } }
+tslurd = { \pgrace { A32[ d G] } }
 wtslurd = { \pgrace { A32[ d c] } }
-tslure  = { \pgrace { A32[ e a] } }
-tslurf  = { \pgrace { A32[ f a] } }
-tslurg  = { \pgrace { A32[ f a] } }
-tslurA  = { \pgrace { f32[ a] } }
+tslure = { \pgrace { A32[ e a] } }
+tslurf = { \pgrace { A32[ f a] } }
+tslurg = { \pgrace { A32[ f a] } }
+tslurA = { \pgrace { f32[ a] } }
 
 % Catches
 catcha = { \pgrace { a32[ G d G] } }
@@ -276,39 +294,39 @@ tcatche = { \pgrace { A32[ e G d G] } }
 tripleA = { \pgrace { A32[ g A g A g] } }
 
 % Throws
-thrwd     = { \pgrace { G32[ d c] } }
-Gthrwd    = { \pgrace { d32[ c] } }
+thrwd = { \pgrace { G32[ d c] } }
+Gthrwd = { \pgrace { d32[ c] } }
 gripthrwd = { \pgrace { G32[ d G c] } }
-thrwe     = { \pgrace { e32[ a f a] } }
-wthrwe    = { \pgrace { e32[ d f d] } }
-thrwf     = { \pgrace { f32[ e g e] } }
+thrwe = { \pgrace { e32[ a f a] } }
+wthrwe = { \pgrace { e32[ d f d] } }
+thrwf = { \pgrace { f32[ e g e] } }
 
 % Birls
-birl  = { \pgrace { a32[ G a G] } }
+birl = { \pgrace { a32[ G a G] } }
 wbirl = { \pgrace { G32[ a G] } }
 gbirl = { \pgrace { g32[ a G a G] } }
 dbirl = { \pgrace { d32[ a G a G] } }
 
 % Grips
-grip  = { \pgrace { G32[ d G] } }
+grip = { \pgrace { G32[ d G] } }
 dgrip = { \pgrace { G32[ b G] } }
 egrip = { \pgrace { G32[ e G] } }
 fgrip = { \pgrace { G32[ f G] } }
 
 % Taorluaths
-taor    = { \pgrace { G32[ d G e] } }
+taor = { \pgrace { G32[ d G e] } }
 taorjmd = { \pgrace { G32[ d a e] } }
 taorold = { \pgrace { G32[ d G a e] } }
-dtaor   = { \pgrace { G32[ b G e] } }
-Gtaor   = { \pgrace { d32[ G e] } }
+dtaor = { \pgrace { G32[ b G e] } }
+Gtaor = { \pgrace { d32[ G e] } }
 taoramb = { \pgrace { G32[ d G b e] } }
 taoramc = { \pgrace { G32[ d G c e] } }
 taoramd = { \pgrace { G32[ d G c d e] } }
 
 % Crunluaths
-crun    = { \pgrace { G32[ d G e a f a ] } }
-dcrun   = { \pgrace { G32[ b G e a f a ] } }
-Gcrun   = { \pgrace { d32[ G e G f a ] } }
+crun = { \pgrace { G32[ d G e a f a ] } }
+dcrun = { \pgrace { G32[ b G e a f a ] } }
+Gcrun = { \pgrace { d32[ G e G f a ] } }
 crunamb = { \pgrace { G32[ d G b e b f b ] } }
 crunamc = { \pgrace { G32[ d G c e c f c ] } }
 crunamd = { \pgrace { G32[ d G c d e d f d ] } }
@@ -317,36 +335,36 @@ crunamcfosg = { \pgrace { e32[ c f c ] } }
 crunamdfosg = { \pgrace { e32[ d f d ] } }
 
 % Special piobaireachd notations
-grGcad   = { \pgrace { G16 } }
-gracad   = { \pgrace { a16 } }
-cad      = { \pgrace { \stemspace #'(0 . 0.5) g32[ e8 d32] } }
-hcad     = { \pgrace { \stemspace #'(0 . 0.5) g32[ e8] } }
-tcad     = { \pgrace { e8[ d32] } }
-thcad    = { \pgrace { e8 } }
+grGcad = { \pgrace { G16 } }
+gracad = { \pgrace { a16 } }
+cad = { \pgrace { \stemspace #'(0 . 0.5) g32[ e8 d32] } }
+hcad = { \pgrace { \stemspace #'(0 . 0.5) g32[ e8] } }
+tcad = { \pgrace { e8[ d32] } }
+thcad = { \pgrace { e8 } }
 % This is the same as thrwe
-dre      = { \pgrace { e32[ a f a] } }
+dre = { \pgrace { e32[ a f a] } }
 % This is the same as thrwf
-dare     = { \pgrace { f32[ e g e] } }
-bari     = { \pgrace { e32[ G f G] } }
-dari     = { \pgrace { f32[ e g e f e] } }
-fdari    = { \pgrace { e32[ g e f e] } }
-pthrwd   = { \pgrace { G16[ d32 c] } }
-darodo   = { \pgrace { G32[ d G c G] } }
-Gdarodo  = { \pgrace { d32[ G c G] } }
-pdarodo  = { \pgrace { G16[ d32 G c G16] } }
+dare = { \pgrace { f32[ e g e] } }
+bari = { \pgrace { e32[ G f G] } }
+dari = { \pgrace { f32[ e g e f e] } }
+fdari = { \pgrace { e32[ g e f e] } }
+pthrwd = { \pgrace { G16[ d32 c] } }
+darodo = { \pgrace { G32[ d G c G] } }
+Gdarodo = { \pgrace { d32[ G c G] } }
+pdarodo = { \pgrace { G16[ d32 G c G16] } }
 pGdarodo = { \pgrace { d32[ G c G16] } }
 % Weird stuff from Joseph MacDonald’s book
-fifteenthcutting     = { \pgrace { G32[ d a e a f a e a d] } }
-fifteenthcuttingG    = { \pgrace { G32[ d a e G f G e G d] } }
-Gfifteenthcutting    = { \pgrace { d32[ a e a f a e a d] } }
-GfifteenthcuttingG   = { \pgrace { d32[ a e G f G e G d] } }
-seventeenthcutting   = { \pgrace { G32[ d a e a f a e a d a c] } }
-seventeenthcuttingG  = { \pgrace { G32[ d a e G f G e G d G c] } }
-Gseventeenthcutting  = { \pgrace { d32[ a e a f a e a d a c] } }
+fifteenthcutting = { \pgrace { G32[ d a e a f a e a d] } }
+fifteenthcuttingG = { \pgrace { G32[ d a e G f G e G d] } }
+Gfifteenthcutting = { \pgrace { d32[ a e a f a e a d] } }
+GfifteenthcuttingG = { \pgrace { d32[ a e G f G e G d] } }
+seventeenthcutting = { \pgrace { G32[ d a e a f a e a d a c] } }
+seventeenthcuttingG = { \pgrace { G32[ d a e G f G e G d G c] } }
+Gseventeenthcutting = { \pgrace { d32[ a e a f a e a d a c] } }
 GseventeenthcuttingG = { \pgrace { d32[ a e G f G e G d G c] } }
-barluadh   = { \pgrace { G32[ d a e a f a e a d a c a b a e a f a] } }
-barluadhG  = { \pgrace { G32[ d a e G f G e G d G c G b G e G f G] } }
-Gbarluadh  = { \pgrace { d32[ a e a f a e a d a c a b a e a f a] } }
+barluadh = { \pgrace { G32[ d a e a f a e a d a c a b a e a f a] } }
+barluadhG = { \pgrace { G32[ d a e G f G e G d G c G b G e G f G] } }
+Gbarluadh = { \pgrace { d32[ a e a f a e a d a c a b a e a f a] } }
 GbarluadhG = { \pgrace { d32[ a e G f G e G d G c G b G e G f G] } }
 % Non-gracenote piobaireachd markup.
 trebling = \markup {
